@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Launch": {
+      "commandName": "Project",
+      "commandLineArgs": "hello"
+    }
+  }
+}
