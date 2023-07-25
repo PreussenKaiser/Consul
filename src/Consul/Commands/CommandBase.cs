@@ -1,11 +1,11 @@
-﻿namespace Consul;
+﻿namespace Consul.Commands;
 
 public abstract class CommandBase
 {
     public CommandBase()
     {
-        this.Name = string.Empty;
-        this.Arguments = Array.Empty<string>();
+        Name = string.Empty;
+        Arguments = Array.Empty<string>();
     }
 
     public string Name { get; set; }

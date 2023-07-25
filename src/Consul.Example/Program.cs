@@ -1,10 +1,15 @@
 ﻿using Consul.Bootstrapping;
+using Consul.Example.Middleware;
 using Consul.Extensions;
 
-await ConsoleApplication
+var builder = ConsoleApplication
     .CreateBuilder(args)
     .ConfigureServices(services => services
         .AddCommandsFromAssembly<Program>()
-        .AddConsoleLogging())
-    .Build()
-    .RunAsync();
+        .AddConsoleLogging());
+
+var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+await app.RunAsync();

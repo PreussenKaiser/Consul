@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Consul.Commands;
+using Microsoft.Extensions.Logging;
 
 namespace Consul.Example.Commands;
 

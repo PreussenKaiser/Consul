@@ -1,4 +1,5 @@
-﻿using Consul.Extensions;
+﻿using Consul.Commands;
+using Consul.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Consul.Tests.Extensions;
