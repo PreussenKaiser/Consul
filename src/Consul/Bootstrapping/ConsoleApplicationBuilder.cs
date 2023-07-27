@@ -4,12 +4,9 @@ namespace Consul.Bootstrapping;
 
 public sealed class ConsoleApplicationBuilder
 {
-    private readonly string[] arguments;
-
-    public ConsoleApplicationBuilder(params string[] arguments)
+    public ConsoleApplicationBuilder(IServiceCollection services)
     {
-        this.arguments = arguments;
-        this.Services = new ServiceCollection();
+        this.Services = services;
     }
 
     public IServiceCollection Services { get; }
@@ -23,6 +20,6 @@ public sealed class ConsoleApplicationBuilder
 
     public ConsoleApplication Build()
     {
-        return new ConsoleApplication(this.Services.BuildServiceProvider(), this.arguments);
+        return new ConsoleApplication(this.Services.BuildServiceProvider());
     }
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "Launch": {
       "commandName": "Project",
-      "commandLineArgs": "hello"
+      "commandLineArgs": "hello -name world"
     }
   }
 }

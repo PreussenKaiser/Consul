@@ -1,12 +1,7 @@
 ﻿using Consul.Bootstrapping;
 using Consul.Example.Middleware;
-using Consul.Extensions;
 
-var builder = ConsoleApplication
-    .CreateBuilder(args)
-    .ConfigureServices(services => services
-        .AddCommandsFromAssembly<Program>()
-        .AddConsoleLogging());
+var builder = ConsoleApplication.CreateDefaultBuilder(args);
 
 var app = builder.Build();
 

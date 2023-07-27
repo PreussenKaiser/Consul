@@ -1,28 +1,34 @@
-﻿using Consul.Commands;
+﻿using Consul.Entities;
+using Consul.Extensions;
 using Consul.Middleware;
+using Consul.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
 
 namespace Consul.Bootstrapping;
 
 public sealed class ConsoleApplication
 {
-    public ConsoleApplication(
-        IServiceProvider serviceProvider,
-        params string[] arguments)
+    public ConsoleApplication(IServiceProvider serviceProvider)
     {
         this.ServiceProvider = serviceProvider;
-        this.Arguments = arguments;
     }
 
     public IServiceProvider ServiceProvider { get; }
 
-    public string[] Arguments { get; }
-
-    public static ConsoleApplicationBuilder CreateBuilder(params string[] args)
+    public static ConsoleApplicationBuilder CreateBuilder()
     {
-        return new ConsoleApplicationBuilder(args);
+        IServiceCollection services = new ServiceCollection();
+
+        return new ConsoleApplicationBuilder(services);
+    }
+
+    public static ConsoleApplicationBuilder CreateDefaultBuilder(params string[] arguments)
+    {
+        IServiceCollection services = new ServiceCollection()
+            .AddConsoleLogging()
+            .AddCommandLine(arguments);
+
+        return new ConsoleApplicationBuilder(services);
     }
 
     public ConsoleApplication UseMiddleware<TMiddleware>()
@@ -35,31 +41,9 @@ public sealed class ConsoleApplication
 
     public async Task RunAsync()
     {
-        using (IServiceScope scope = this.ServiceProvider.CreateScope())
-        {
-            ILogger<ConsoleApplication> logger = this.ServiceProvider.GetRequiredService<ILogger<ConsoleApplication>>();
-            IEnumerable<CommandBase> commands = this.ServiceProvider.GetServices<CommandBase>();
+        var worker = this.ServiceProvider.GetRequiredService<IConsoleWorker>();
+        CancellationTokenSource tokenSource = new();
 
-            foreach (CommandBase command in commands)
-            {
-                if (command.Name == this.Arguments[0])
-                {
-                    await command.RunAsync();
-                }
-            }
-        }
-
-        this.PromptUser(this.ServiceProvider);
-    }
-
-    private void PromptUser(IServiceProvider serviceProvider)
-    {
-        var logger = serviceProvider.GetRequiredService<ILogger<ConsoleApplication>>();
-
-#if DEBUG
-        logger.LogInformation("Press any key to continue.");
-
-        Console.ReadKey();
-#endif
+        await worker.RunAsync(tokenSource.Token);
     }
 }
