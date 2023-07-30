@@ -1,4 +1,4 @@
-﻿namespace Consul.Middleware;
+﻿namespace Consul.Abstractions;
 
 public interface IMiddleware
 {

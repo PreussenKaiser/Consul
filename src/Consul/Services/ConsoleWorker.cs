@@ -1,6 +1,5 @@
-﻿using Consul.Commands;
+﻿using Consul.Abstractions;
 using Consul.Entities;
-using Consul.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -35,17 +34,5 @@ public sealed class ConsoleWorker : IConsoleWorker
                 await command!.ExecuteAsync(this.arguments);
             }
         }
-
-        this.PromptUser(this.serviceProvider);
-    }
-
-
-    private void PromptUser(IServiceProvider serviceProvider)
-    {
-#if DEBUG
-        this.logger.LogInformation("Press any key to continue.");
-
-        Console.ReadKey();
-#endif
     }
 }

@@ -1,35 +1,32 @@
-﻿using Consul.Commands;
+﻿using Consul.Abstractions;
 using Consul.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Consul.Tests.Extensions;
 
 public sealed class ServiceCollectionExtensionsTests
 {
-    [Theory]
-    [InlineData(typeof(MockCommand), true)]
-    [InlineData(typeof(string), false)]
-    public void Gets_Commands(Type type, bool expected)
+    private readonly IServiceCollection services = new ServiceCollection();
+
+    [Fact]
+    public void Adds_Middleware()
     {
         // Arrange
-        ServiceCollection services = new();
+        Assembly? assembly = Assembly.GetExecutingAssembly();
+        IServiceProvider serviceProvider = this.services
+            .AddFromAssembly<IMiddleware>(assembly)
+            .BuildServiceProvider();
 
         // Act
-        services.AddCommandsFromAssembly(type);
-
-        bool actual = services
-            .BuildServiceProvider()
-            .GetService<CommandBase>() is not null;
+        IEnumerable<IMiddleware> actual = serviceProvider.GetServices<IMiddleware>();
 
         // Assert
-        Assert.Equal(expected, actual);
+        Assert.NotEmpty(actual);
     }
 }
 
-public sealed class MockCommand : CommandBase
+public sealed class MockMiddleware : IMiddleware
 {
-    public override Task RunAsync()
-    {
-        return Task.CompletedTask;
-    }
+    public Task InvokeAsync() => Task.CompletedTask;
 }

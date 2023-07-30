@@ -1,6 +1,6 @@
 ﻿using Consul.Extensions;
 
-namespace Consul.Commands;
+namespace Consul.Abstractions;
 
 public abstract class CommandBase
 {
@@ -9,9 +9,9 @@ public abstract class CommandBase
 
     public CommandBase()
     {
-        this.CommandName = string.Empty;
-        this.parameters = new Dictionary<string, string>();
-        this.mappings = new List<Action<string>>();
+        CommandName = string.Empty;
+        parameters = new Dictionary<string, string>();
+        mappings = new List<Action<string>>();
     }
 
     public string CommandName { get; private set; }
@@ -24,23 +24,23 @@ public abstract class CommandBase
 
         for (var i = 0; i < mappings.Count; i++)
         {
-            Action<string> mapping = this.mappings[i];
+            Action<string> mapping = mappings[i];
             string argument = parsedArguments[i];
 
             mapping.Invoke(argument);
         }
 
-        await this.RunAsync();
+        await RunAsync();
     }
 
     protected void IsCommand(string commandName)
     {
-        this.CommandName = commandName.ToLower();
+        CommandName = commandName.ToLower();
     }
 
     protected void AddParameter(string name, string description, Action<string> mapping)
     {
-        this.parameters.Add(name.ToLower(), description);
-        this.mappings.Add(mapping);
+        parameters.Add(name.ToLower(), description);
+        mappings.Add(mapping);
     }
 }

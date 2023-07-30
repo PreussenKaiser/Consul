@@ -5,6 +5,6 @@ var builder = ConsoleApplication.CreateDefaultBuilder(args);
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
 await app.RunAsync();

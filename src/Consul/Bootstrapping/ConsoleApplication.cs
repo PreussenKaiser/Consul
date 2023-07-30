@@ -1,16 +1,17 @@
-﻿using Consul.Entities;
+﻿using Consul.Abstractions;
 using Consul.Extensions;
-using Consul.Middleware;
-using Consul.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Consul.Bootstrapping;
 
 public sealed class ConsoleApplication
 {
+    private readonly List<IMiddleware> middleware;
+
     public ConsoleApplication(IServiceProvider serviceProvider)
     {
-        this.ServiceProvider = serviceProvider;
+        ServiceProvider = serviceProvider;
+        middleware = new();
     }
 
     public IServiceProvider ServiceProvider { get; }
@@ -34,16 +35,28 @@ public sealed class ConsoleApplication
     public ConsoleApplication UseMiddleware<TMiddleware>()
         where TMiddleware : notnull, IMiddleware
     {
-        // TODO: Add middleware.
+        IEnumerable<IMiddleware> middleware = ServiceProvider.GetServices<IMiddleware>();
+        IMiddleware? foundMiddleware = middleware.FirstOrDefault(m => m.GetType() == typeof(TMiddleware));
+
+        if (foundMiddleware is null)
+        {
+            return this;
+        }
+
+        this.middleware.Add(foundMiddleware);
 
         return this;
     }
 
     public async Task RunAsync()
     {
-        var worker = this.ServiceProvider.GetRequiredService<IConsoleWorker>();
-        CancellationTokenSource tokenSource = new();
+        var worker = ServiceProvider.GetRequiredService<IConsoleWorker>();
+        var lifetime = ServiceProvider.GetService<IConsoleApplicationLifetime>();
 
-        await worker.RunAsync(tokenSource.Token);
+        CancellationToken token = lifetime?.Token ?? CancellationToken.None;
+
+        middleware.ForEach(async m => await m.InvokeAsync());
+
+        await worker.RunAsync(token);
     }
 }

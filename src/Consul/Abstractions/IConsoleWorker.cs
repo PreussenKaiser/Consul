@@ -1,4 +1,4 @@
-﻿namespace Consul.Services;
+﻿namespace Consul.Abstractions;
 
 public interface IConsoleWorker
 {
